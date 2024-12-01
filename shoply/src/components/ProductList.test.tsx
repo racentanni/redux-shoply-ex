@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import ProductList from './ProductList';
 
@@ -23,7 +24,9 @@ describe('ProductList', () => {
   it('renders ProductList with products', () => {
     const { getByText } = render(
       <Provider store={store}>
-        <ProductList />
+        <Router>
+          <ProductList />
+        </Router>
       </Provider>
     );
 
@@ -40,7 +43,9 @@ describe('ProductList', () => {
 
     const { getByText } = render(
       <Provider store={store}>
-        <ProductList />
+        <Router>
+          <ProductList />
+        </Router>
       </Provider>
     );
 

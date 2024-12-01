@@ -32,15 +32,18 @@ const initialState = {
     numRemaining: 10 // Set initial numRemaining value
   })),
   cart: loadCartFromLocalStorage(),
+  savedForLater: [],
   discount: 0,
-  taxRate: TAX_RATE
+  taxRate: TAX_RATE,
+  coupons: [] // Add coupons array to initial state
 };
 
 const rootReducer = (state = initialState, action) => {
+  let updatedCart;
+  let updatedSavedForLater;
   switch (action.type) {
     case 'ADD_TO_CART':
       const existingItem = state.cart.find(item => item.id === action.payload.id);
-      let updatedCart;
       if (existingItem) {
         updatedCart = state.cart.map(item =>
           item.id === action.payload.id
@@ -81,10 +84,45 @@ const rootReducer = (state = initialState, action) => {
             : product
         )
       };
+    case 'SAVE_FOR_LATER':
+      const itemToSave = state.cart.find(item => item.id === action.payload.id);
+      updatedCart = state.cart.filter(item => item.id !== action.payload.id);
+      updatedSavedForLater = [...state.savedForLater, itemToSave];
+      saveCartToLocalStorage(updatedCart);
+      return {
+        ...state,
+        cart: updatedCart,
+        savedForLater: updatedSavedForLater
+      };
+    case 'MOVE_TO_CART':
+      const itemToMove = state.savedForLater.find(item => item.id === action.payload.id);
+      updatedSavedForLater = state.savedForLater.filter(item => item.id !== action.payload.id);
+      updatedCart = [...state.cart, itemToMove];
+      saveCartToLocalStorage(updatedCart);
+      return {
+        ...state,
+        cart: updatedCart,
+        savedForLater: updatedSavedForLater
+      };
     case 'APPLY_DISCOUNT':
       return {
         ...state,
         discount: action.payload
+      };
+    case 'ADD_COUPON':
+      return {
+        ...state,
+        coupons: [...state.coupons, action.payload]
+      };
+    case 'REMOVE_COUPON':
+      return {
+        ...state,
+        coupons: state.coupons.filter(coupon => coupon !== action.payload)
+      };
+    case 'ADD_PRODUCT':
+      return {
+        ...state,
+        products: [...state.products, action.payload]
       };
     default:
       return state;

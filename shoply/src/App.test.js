@@ -1,8 +1,33 @@
-import { render, screen } from '@testing-library/react';
+import React from 'react';
+import { render } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
+import configureStore from 'redux-mock-store';
 import App from './App';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+const mockStore = configureStore([]);
+
+describe('App', () => {
+  let store;
+
+  beforeEach(() => {
+    store = mockStore({
+      root: {
+        products: [],
+        cart: [],
+      },
+    });
+  });
+
+  it('renders App without crashing', () => {
+    const { getByText } = render(
+      <Provider store={store}>
+        <Router>
+          <App />
+        </Router>
+      </Provider>
+    );
+
+    expect(getByText('Shoply')).toBeInTheDocument();
+  });
 });

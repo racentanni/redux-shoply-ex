@@ -4,8 +4,10 @@ import './Cart.css';
 
 const Cart = () => {
   const cart = useSelector((state: any) => state.root.cart);
+  const savedForLater = useSelector((state: any) => state.root.savedForLater);
   const discount = useSelector((state: any) => state.root.discount);
   const taxRate = useSelector((state: any) => state.root.taxRate);
+  const coupons = useSelector((state: any) => state.root.coupons);
   const dispatch = useDispatch();
   const [discountCode, setDiscountCode] = useState('');
   const [error, setError] = useState('');
@@ -24,10 +26,22 @@ const Cart = () => {
     }
   };
 
+  const saveForLater = (item: any) => {
+    dispatch({ type: 'SAVE_FOR_LATER', payload: item });
+  };
+
+  const moveToCart = (item: any) => {
+    dispatch({ type: 'MOVE_TO_CART', payload: item });
+  };
+
   const applyDiscount = (e: React.FormEvent) => {
     e.preventDefault();
     if (discount > 0) {
       setError('A discount has already been applied.');
+      return;
+    }
+    if (!coupons.includes(discountCode)) {
+      setError('Invalid discount code.');
       return;
     }
     switch (discountCode) {
@@ -57,6 +71,7 @@ const Cart = () => {
             <div>
               <button onClick={() => increaseQuantity(item)} className="btn btn-success btn-sm">+</button>
               <button onClick={() => decreaseQuantity(item)} className="btn btn-danger btn-sm ml-2">-</button>
+              <button onClick={() => saveForLater(item)} className="btn btn-warning btn-sm ml-2">Save for Later</button>
             </div>
           </li>
         ))}
@@ -78,6 +93,17 @@ const Cart = () => {
         <button type="submit" className="btn btn-primary mt-2">Apply Discount</button>
       </form>
       {error && <div className="alert alert-danger mt-2">{error}</div>}
+      <h2 className="mt-4">Saved for Later</h2>
+      <ul className="list-group">
+        {savedForLater.map((item: any) => (
+          <li key={item.id} className="list-group-item d-flex justify-content-between align-items-center">
+            {item.name} - ${item.price} x {item.quantity}
+            <div>
+              <button onClick={() => moveToCart(item)} className="btn btn-primary btn-sm">Move to Cart</button>
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
